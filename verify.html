@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifying Request...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen">
+
+    <div id="statusBox" class="bg-white p-10 rounded-2xl shadow-xl max-w-md w-full text-center">
+        <div id="loading" class="space-y-4">
+            <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <h2 class="text-xl font-bold text-gray-800">Verifying your request...</h2>
+            <p class="text-gray-500">Please wait while we activate your priority dispatch.</p>
+        </div>
+
+        <div id="success" class="hidden space-y-4">
+            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-3xl">✓</div>
+            <h2 class="text-2xl font-bold text-green-700">Verified & Dispatched!</h2>
+            <p class="text-gray-600">Your request has been successfully sent to the selected clinics. They will contact you shortly.</p>
+            <a href="index.html" class="block mt-6 bg-gray-900 text-white font-bold py-3 rounded-lg hover:bg-black transition">Return Home</a>
+        </div>
+
+        <div id="error" class="hidden space-y-4">
+            <div class="text-red-500 text-5xl">⚠</div>
+            <h2 class="text-xl font-bold text-red-600">Verification Failed</h2>
+            <p id="errorMessage" class="text-gray-600"></p>
+            <a href="index.html" class="block mt-6 bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition">Return Home</a>
+        </div>
+    </div>
+
+    <script>
+        // ضع هنا رابط دالة belfast-verifier التي أنشأتها على Cloud Run
+        const VERIFIER_API_URL = 'https://belfast-verifier-933163611360.europe-west1.run.app';
+
+        async function verifyRequest() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const id = urlParams.get('id');
+
+            if (!token || !id) {
+                showError("Invalid verification link. Please check your email again.");
+                return;
+            }
+
+            try {
+                const response = await fetch(VERIFIER_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lead_id: id, token: token })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('success').classList.remove('hidden');
+                } else {
+                    showError(data.error || "Verification failed.");
+                }
+            } catch (err) {
+                showError("Connection error. Please try again later.");
+            }
+        }
+
+        function showError(msg) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('error').classList.remove('hidden');
+            document.getElementById('errorMessage').innerText = msg;
+        }
+
+        verifyRequest();
+    </script>
+</body>
+</html>

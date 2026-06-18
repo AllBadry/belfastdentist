@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- سيتم تغيير الـ Title برمجياً بواسطة الجافاسكربت ليتناسب مع المقال -->
+    <title>Article | Belfast Dentist Network</title> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loader { border-top-color: #3b82f6; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* تنسيقات مخصصة لمحتوى المقال القادم من ملف JSON */
+        .article-body h2 { font-size: 1.875rem; font-weight: 800; color: #111827; margin-top: 2.5rem; margin-bottom: 1rem; }
+        .article-body p { font-size: 1.125rem; line-height: 1.8; color: #4b5563; margin-bottom: 1.5rem; }
+        .article-body hr { margin: 3rem 0; border-color: #e5e7eb; }
+        .article-body ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1.5rem; font-size: 1.125rem; color: #4b5563; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-gray-800 antialiased flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm border-b border-gray-100 fixed w-full z-40 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-20 items-center">
+            
+            <span class="text-2xl font-extrabold text-blue-800 tracking-tight">Belfast<span class="text-gray-900">Dentist</span></span>
+            
+            <div class="hidden md:flex space-x-8 font-medium text-gray-600">
+                <a href="index.html" class="hover:text-blue-700 transition">Home</a>
+                <a href="about.html" class="hover:text-blue-700 transition">About Us</a>
+                <a href="clinics.html" class="hover:text-blue-700 transition">Dental Clinics</a>
+                <a href="pricing.html" class="hover:text-blue-700 transition">Average Prices</a>
+                <a href="areas.html" class="hover:text-blue-700 transition">Browse by Area</a>
+                <a href="insights.html" class="text-blue-700 font-bold transition">Insights</a>
+            </div>
+            
+            <div class="md:hidden flex items-center">
+                <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-blue-700 focus:outline-none p-2">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-100 shadow-lg absolute w-full">
+            <div class="px-4 pt-2 pb-4 space-y-2">
+                <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition">Home</a>
+                <a href="about.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition">About Us</a>
+                <a href="clinics.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition">Dental Clinics</a>
+                <a href="pricing.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition">Average Prices</a>
+                <a href="areas.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition">Browse by Area</a>
+                <a href="insights.html" class="block px-3 py-2 rounded-md text-base font-bold text-blue-700 bg-blue-50">Insights</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <section class="pt-28 pb-20 flex-grow max-w-4xl mx-auto px-4 w-full">
+        
+        <!-- زر العودة -->
+        <a href="insights.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-bold mb-8 transition">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Insights
+        </a>
+
+        <!-- Loader -->
+        <div id="articleLoader" class="flex justify-center items-center py-20">
+            <div class="loader w-12 h-12 border-4 border-blue-500 rounded-full"></div>
+        </div>
+
+        <!-- Article Container (مخفي حتى يتم جلب البيانات) -->
+        <div id="articleContent" class="hidden bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <!-- سيتم وضع صورة المقال هنا -->
+            <img id="renderImage" src="" alt="Article Image" class="w-full h-64 md:h-96 object-cover">
+            
+            <div class="p-8 md:p-12">
+                <!-- تفاصيل الكاتب والتاريخ -->
+                <div class="flex items-center text-sm font-bold uppercase tracking-wider text-blue-600 mb-4">
+                    <span id="renderDate"></span> 
+                    <span class="mx-2 text-gray-300">|</span> 
+                    <span id="renderAuthor" class="text-gray-500"></span>
+                </div>
+                
+                <!-- عنوان المقال -->
+                <h1 id="renderTitle" class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-8 leading-tight"></h1>
+                
+                <!-- محتوى المقال الفعلي المكتوب بـ HTML في ملف JSON -->
+                <div id="renderBody" class="article-body">
+                    <!-- سيتم حقن المحتوى هنا -->
+                </div>
+            </div>
+        </div>
+
+        <!-- رسالة الخطأ في حال لم يتم العثور على المقال -->
+        <div id="errorMessage" class="hidden text-center py-20">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Article Not Found</h2>
+            <p class="text-gray-600 mb-8">The article you are looking for does not exist or has been removed.</p>
+            <a href="insights.html" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-xl">Return to Insights</a>
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    <!--footer-->
+    <footer class="bg-gray-900 text-gray-300 py-16 border-t border-gray-800 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
+        
+        <div>
+            <span class="text-3xl font-extrabold text-white tracking-tight">Belfast<span class="text-blue-500">Dentist</span></span>
+            <p class="mt-4 text-sm leading-relaxed text-gray-400">
+                Connecting patients with premium dental care across Belfast. Fast, precise, and highly reliable.
+            </p>
+            <div class="mt-6 flex items-center">
+                <div class="bg-gray-800 p-2 rounded-lg mr-3">
+                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Call Us</p>
+                    <a href="tel:+442039960055" class="hover:text-blue-400 text-white font-bold transition text-lg">+44 20 39960055</a>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h4 class="text-white font-bold mb-5 uppercase tracking-wider text-sm flex items-center">
+                <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                Report Data Issue
+            </h4>
+            <p class="text-sm mb-4 text-gray-400 leading-relaxed">Found incorrect details about a clinic? Help us keep our network accurate and up-to-date.</p>
+            <a href="mailto:Report@belfastdentist.co.uk" class="inline-flex items-center text-blue-400 hover:text-blue-300 transition text-sm font-bold bg-gray-800 hover:bg-gray-700 px-4 py-2.5 rounded-lg border border-gray-700">
+                <span class="mr-2">✉️</span> Report@belfastdentist.co.uk
+            </a>
+        </div>
+
+        <div>
+            <h4 class="text-white font-bold mb-5 uppercase tracking-wider text-sm flex items-center">
+                <svg class="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                Add a Clinic (100% Free)
+            </h4>
+            <p class="text-sm mb-4 text-gray-400 leading-relaxed">Are you a Belfast clinic not listed here? Or a patient who wants to recommend one? We will add the clinic for free.</p>
+            <div class="flex flex-col space-y-3">
+                <a href="mailto:Contact@belfastdentist.co.uk" class="inline-flex items-center text-blue-400 hover:text-blue-300 transition text-sm font-bold">
+                    <span class="mr-2">✉️</span> Contact@belfastdentist.co.uk
+                </a>
+                <a href="mailto:admin@belfastdentist.co.uk" class="inline-flex items-center text-blue-400 hover:text-blue-300 transition text-sm font-bold">
+                    <span class="mr-2">✉️</span> admin@belfastdentist.co.uk
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-12 border-t border-gray-800">
+        <h4 class="text-white font-bold mb-6 uppercase tracking-wider text-sm">Browse Dentists by Area</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-3">
+            <a href="locations/bt1.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT1 - City Centre</a>
+            <a href="locations/bt2.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT2 - City / Ormeau</a>
+            <a href="locations/bt3.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT3 - East / Sydenham</a>
+            <a href="locations/bt4.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT4 - East / Belmont</a>
+            <a href="locations/bt5.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT5 - Castlereagh</a>
+            <a href="locations/bt6.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT6 - East / Woodstock</a>
+            <a href="locations/bt7.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT7 - South / Ormeau</a>
+            <a href="locations/bt8.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT8 - South / Carryduff</a>
+            <a href="locations/bt9.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT9 - South / Malone</a>
+            <a href="locations/bt10.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT10 - Finaghy</a>
+            <a href="locations/bt11.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT11 - Andersonstown</a>
+            <a href="locations/bt12.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT12 - Falls Road</a>
+            <a href="locations/bt13.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT13 - Shankill</a>
+            <a href="locations/bt14.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT14 - Crumlin Road</a>
+            <a href="locations/bt15.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT15 - Antrim Road</a>
+            <a href="locations/bt16.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT16 - Dundonald</a>
+            <a href="locations/bt17.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT17 - Dunmurry</a>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-gray-800 text-sm text-center flex flex-col md:flex-row justify-between items-center text-gray-500">
+        <p>&copy; 2026 Belfast Dentist Network. All rights reserved.</p>
+        <div class="mt-4 md:mt-0 space-x-4">
+            <a href="#" class="hover:text-gray-300 transition">Privacy Policy</a>
+            <a href="#" class="hover:text-gray-300 transition">Terms of Service</a>
+        </div>
+    </div>
+</footer>
+
+    <!-- الجافاسكربت المسؤولة عن جلب وعرض المقال -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loader = document.getElementById('articleLoader');
+            const articleContent = document.getElementById('articleContent');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // 1. استخراج رقم المقال (ID) من رابط الصفحة
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleId = parseInt(urlParams.get('id'));
+
+            // إذا لم يكن هناك رقم في الرابط، أظهر رسالة خطأ
+            if (!articleId) {
+                loader.classList.add('hidden');
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                // 2. سحب ملف المقالات
+                const response = await fetch('articles.json'); 
+                if (!response.ok) throw new Error("Could not load articles");
+                const articles = await response.json();
+                
+                // 3. البحث عن المقال الذي يطابق الرقم
+                const article = articles.find(a => a.id === articleId);
+
+                if (article) {
+                    // 4. تعبئة البيانات في الشاشة
+                    // خدعة SEO: تغيير عنوان الـ Tab في المتصفح لاسم المقال
+                    document.title = article.title + " | Belfast Dentist Network"; 
+                    
+                    document.getElementById('renderImage').src = article.image;
+                    document.getElementById('renderImage').alt = article.title;
+                    document.getElementById('renderDate').innerText = article.date;
+                    document.getElementById('renderAuthor').innerText = article.author;
+                    document.getElementById('renderTitle').innerText = article.title;
+                    
+                    // حقن كود الـ HTML الخاص بمحتوى المقال
+                    document.getElementById('renderBody').innerHTML = article.content;
+
+                    // إظهار المقال
+                    loader.classList.add('hidden');
+                    articleContent.classList.remove('hidden');
+                } else {
+                    throw new Error("Article not found in JSON");
+                }
+
+            } catch (error) {
+                console.error(error);
+                loader.classList.add('hidden');
+                errorMessage.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

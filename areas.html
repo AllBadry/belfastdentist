@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Browse Dentists by Area | Belfast Dental Clinics</title>
+    <meta name="description" content="Find dentist by areas. Find top-rated private and NHS dental clinics across all Belfast postcode areas (BT1 - BT17). Book your appointment today.">
+    <meta name="keywords" content="belfast dentist, dentist Belfast, dental clinics Belfast, dental treatment, best dentist near me, emergency dentist, BT1, BT2, BT3, BT4, BT5, BT6, BT7, BT8, BT9, BT10, BT11, BT12, BT13, BT14, BT15, BT16, BT17">
+    
+    <link rel="icon" type="image/png" href="./DDR.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body.modal-open { overflow: hidden; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* تأثيرات الخريطة التفاعلية */
+        .map-link { stroke: #cbd5e1; stroke-width: 3; stroke-dasharray: 6 4; }
+        .map-group { cursor: pointer; transition: all 0.3s ease; }
+        .map-node { fill: #ffffff; stroke: #94a3b8; stroke-width: 3; transition: all 0.3s ease; }
+        .map-text { fill: #334155; font-family: system-ui, sans-serif; font-weight: 800; font-size: 16px; transition: all 0.3s ease; pointer-events: none; }
+        
+        /* عند تمرير الماوس (Hover) تضيء باللون الأزرق */
+        .map-group:hover .map-node { fill: #2563eb; stroke: #1e40af; transform: scale(1.1); transform-origin: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .map-group:hover .map-text { fill: #ffffff; }
+
+        /* صندوق التلميح (Tooltip) الذي يتبع الماوس */
+        #mapTooltip {
+            position: absolute;
+            background-color: #1e293b;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(-50%, -150%);
+            transition: opacity 0.2s ease;
+            z-index: 50;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        #mapTooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: #1e293b transparent transparent transparent;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 flex flex-col min-h-screen relative">
+
+    <!-- Tooltip Element -->
+    <div id="mapTooltip"></div>
+
+  <nav class="bg-white shadow-sm border-b border-gray-100 fixed w-full z-40 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-20 items-center">
+            
+            <span class="text-2xl font-extrabold text-blue-800 tracking-tight">Belfast<span class="text-gray-900">Dentist</span></span>
+            
+            <div class="hidden md:flex space-x-8 font-medium text-gray-600">
+                <a href="index.html" class="hover:text-blue-700 transition">Home</a>
+                <a href="about.html" class="hover:text-blue-700 transition">About Us</a>
+                <a href="clinics.html" class="hover:text-blue-700 transition">Dental Clinics</a>
+                <a href="pricing.html" class="hover:text-blue-700 transition">Average Prices</a>
+                <a href="areas.html" class="text-blue-700 font-bold transition">Browse by Area</a>
+                <a href="insights.html" class="hover:text-blue-700 transition">Insights</a>
+            </div>
+            
+            <div class="md:hidden flex items-center">
+                <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-blue-700 focus:outline-none p-2">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-100 shadow-lg absolute w-full">
+            <div class="px-4 pt-2 pb-4 space-y-2">
+                <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition">Home</a>
+                <a href="about.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition">About Us</a>
+                <a href="clinics.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition">Dental Clinics</a>
+                <a href="pricing.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition">Average Prices</a>
+                <a href="areas.html" class="block px-3 py-2 rounded-md text-base font-bold text-blue-700 bg-blue-50">Browse by Area</a>
+                <a href="insights.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-700 hover:bg-gray-50 transition">Insights</a>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Hero Section -->
+    <div class="pt-32 pb-8 text-center px-4 sm:px-6 lg:px-8">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
+            Interactive <span class="text-blue-600">Belfast Map</span>
+        </h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+            Hover over the map to explore areas, or select your postcode district from the list below to find top-rated dentists.
+        </p>
+    </div>
+
+    <!-- Interactive SVG Map Section -->
+    <div class="max-w-4xl mx-auto px-4 w-full mb-16 relative">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
+            <!-- 
+                إحداثيات مبسطة جغرافياً (شمال، جنوب، شرق، غرب) 
+                تمثل مناطق بلفاست لتسهيل التفاعل
+            -->
+            <svg viewBox="0 0 800 600" class="w-full h-auto drop-shadow-md">
+                <!-- الخطوط الواصلة (Connections) -->
+                <line x1="400" y1="300" x2="400" y2="180" class="map-link"/> <!-- Center to North -->
+                <line x1="400" y1="180" x2="320" y2="140" class="map-link"/> <!-- North to Far North -->
+                <line x1="400" y1="300" x2="400" y2="400" class="map-link"/> <!-- Center to South -->
+                <line x1="400" y1="400" x2="400" y2="480" class="map-link"/> <!-- South to Further South -->
+                <line x1="400" y1="480" x2="400" y2="560" class="map-link"/> <!-- To BT8 -->
+                <line x1="400" y1="300" x2="500" y2="250" class="map-link"/> <!-- Center to East -->
+                <line x1="500" y1="250" x2="600" y2="250" class="map-link"/> <!-- East to BT4 -->
+                <line x1="600" y1="250" x2="700" y2="250" class="map-link"/> <!-- East to BT16 -->
+                <line x1="400" y1="300" x2="280" y2="300" class="map-link"/> <!-- Center to West -->
+                <line x1="280" y1="300" x2="180" y2="300" class="map-link"/> <!-- West to BT11 -->
+                <line x1="400" y1="400" x2="300" y2="400" class="map-link"/> <!-- South to SW (BT9) -->
+                <line x1="300" y1="400" x2="220" y2="450" class="map-link"/> <!-- SW to BT10 -->
+                <line x1="220" y1="450" x2="140" y2="500" class="map-link"/> <!-- SW to BT17 -->
+                <line x1="400" y1="300" x2="320" y2="220" class="map-link"/> <!-- Center to NW (BT13) -->
+                <line x1="500" y1="250" x2="520" y2="350" class="map-link"/> <!-- East to SE (BT5) -->
+                <line x1="520" y1="350" x2="480" y2="430" class="map-link"/> <!-- SE to BT6 -->
+
+                <!-- المجموعات التفاعلية للعيادات (Nodes) -->
+                <!-- Center -->
+                <g class="map-group" data-area="BT1 - City Centre" onclick="window.location.href='locations/bt1.html'">
+                    <circle cx="400" cy="300" r="30" class="map-node" style="transform-origin: 400px 300px;"/>
+                    <text x="400" y="306" text-anchor="middle" class="map-text">BT1</text>
+                </g>
+                <g class="map-group" data-area="BT2 - South City Centre" onclick="window.location.href='locations/bt2.html'">
+                    <circle cx="400" cy="400" r="30" class="map-node" style="transform-origin: 400px 400px;"/>
+                    <text x="400" y="406" text-anchor="middle" class="map-text">BT2</text>
+                </g>
+
+                <!-- North -->
+                <g class="map-group" data-area="BT15 - Antrim Road" onclick="window.location.href='locations/bt15.html'">
+                    <circle cx="400" cy="180" r="30" class="map-node" style="transform-origin: 400px 180px;"/>
+                    <text x="400" y="186" text-anchor="middle" class="map-text">BT15</text>
+                </g>
+                <g class="map-group" data-area="BT14 - Crumlin Road" onclick="window.location.href='locations/bt14.html'">
+                    <circle cx="320" cy="140" r="30" class="map-node" style="transform-origin: 320px 140px;"/>
+                    <text x="320" y="146" text-anchor="middle" class="map-text">BT14</text>
+                </g>
+
+                <!-- East -->
+                <g class="map-group" data-area="BT3 - Sydenham" onclick="window.location.href='locations/bt3.html'">
+                    <circle cx="500" cy="250" r="30" class="map-node" style="transform-origin: 500px 250px;"/>
+                    <text x="500" y="256" text-anchor="middle" class="map-text">BT3</text>
+                </g>
+                <g class="map-group" data-area="BT4 - Belmont" onclick="window.location.href='locations/bt4.html'">
+                    <circle cx="600" cy="250" r="30" class="map-node" style="transform-origin: 600px 250px;"/>
+                    <text x="600" y="256" text-anchor="middle" class="map-text">BT4</text>
+                </g>
+                <g class="map-group" data-area="BT16 - Dundonald" onclick="window.location.href='locations/bt16.html'">
+                    <circle cx="700" cy="250" r="30" class="map-node" style="transform-origin: 700px 250px;"/>
+                    <text x="700" y="256" text-anchor="middle" class="map-text">BT16</text>
+                </g>
+                <g class="map-group" data-area="BT5 - Castlereagh" onclick="window.location.href='locations/bt5.html'">
+                    <circle cx="520" cy="350" r="30" class="map-node" style="transform-origin: 520px 350px;"/>
+                    <text x="520" y="356" text-anchor="middle" class="map-text">BT5</text>
+                </g>
+                <g class="map-group" data-area="BT6 - Woodstock" onclick="window.location.href='locations/bt6.html'">
+                    <circle cx="480" cy="430" r="30" class="map-node" style="transform-origin: 480px 430px;"/>
+                    <text x="480" y="436" text-anchor="middle" class="map-text">BT6</text>
+                </g>
+
+                <!-- South -->
+                <g class="map-group" data-area="BT7 - Ormeau" onclick="window.location.href='locations/bt7.html'">
+                    <circle cx="400" cy="480" r="30" class="map-node" style="transform-origin: 400px 480px;"/>
+                    <text x="400" y="486" text-anchor="middle" class="map-text">BT7</text>
+                </g>
+                <g class="map-group" data-area="BT8 - Carryduff" onclick="window.location.href='locations/bt8.html'">
+                    <circle cx="400" cy="560" r="30" class="map-node" style="transform-origin: 400px 560px;"/>
+                    <text x="400" y="566" text-anchor="middle" class="map-text">BT8</text>
+                </g>
+                
+                <!-- South West -->
+                <g class="map-group" data-area="BT9 - Malone" onclick="window.location.href='locations/bt9.html'">
+                    <circle cx="300" cy="400" r="30" class="map-node" style="transform-origin: 300px 400px;"/>
+                    <text x="300" y="406" text-anchor="middle" class="map-text">BT9</text>
+                </g>
+                <g class="map-group" data-area="BT10 - Finaghy" onclick="window.location.href='locations/bt10.html'">
+                    <circle cx="220" cy="450" r="30" class="map-node" style="transform-origin: 220px 450px;"/>
+                    <text x="220" y="456" text-anchor="middle" class="map-text">BT10</text>
+                </g>
+                <g class="map-group" data-area="BT17 - Dunmurry" onclick="window.location.href='locations/bt17.html'">
+                    <circle cx="140" cy="500" r="30" class="map-node" style="transform-origin: 140px 500px;"/>
+                    <text x="140" y="506" text-anchor="middle" class="map-text">BT17</text>
+                </g>
+
+                <!-- West & North West -->
+                <g class="map-group" data-area="BT12 - Falls Road" onclick="window.location.href='locations/bt12.html'">
+                    <circle cx="280" cy="300" r="30" class="map-node" style="transform-origin: 280px 300px;"/>
+                    <text x="280" y="306" text-anchor="middle" class="map-text">BT12</text>
+                </g>
+                <g class="map-group" data-area="BT11 - Andersonstown" onclick="window.location.href='locations/bt11.html'">
+                    <circle cx="180" cy="300" r="30" class="map-node" style="transform-origin: 180px 300px;"/>
+                    <text x="180" y="306" text-anchor="middle" class="map-text">BT11</text>
+                </g>
+                <g class="map-group" data-area="BT13 - Shankill" onclick="window.location.href='locations/bt13.html'">
+                    <circle cx="320" cy="220" r="30" class="map-node" style="transform-origin: 320px 220px;"/>
+                    <text x="320" y="226" text-anchor="middle" class="map-text">BT13</text>
+                </g>
+            </svg>
+        </div>
+    </div>
+
+    <!-- The 17 Postcode Cards Grid -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 flex-grow">
+        <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">All Districts</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            <a href="locations/bt1.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT1</div><div class="text-sm font-semibold text-gray-700">City Centre</div></a>
+            <a href="locations/bt2.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT2</div><div class="text-sm font-semibold text-gray-700">City / Ormeau</div></a>
+            <a href="locations/bt3.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT3</div><div class="text-sm font-semibold text-gray-700">East / Sydenham</div></a>
+            <a href="locations/bt4.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT4</div><div class="text-sm font-semibold text-gray-700">East / Belmont</div></a>
+            <a href="locations/bt5.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT5</div><div class="text-sm font-semibold text-gray-700">East / Castlereagh</div></a>
+            <a href="locations/bt6.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT6</div><div class="text-sm font-semibold text-gray-700">East / Woodstock</div></a>
+            <a href="locations/bt7.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT7</div><div class="text-sm font-semibold text-gray-700">South / Ormeau</div></a>
+            <a href="locations/bt8.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT8</div><div class="text-sm font-semibold text-gray-700">South / Carryduff</div></a>
+            <a href="locations/bt9.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT9</div><div class="text-sm font-semibold text-gray-700">South / Malone</div></a>
+            <a href="locations/bt10.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT10</div><div class="text-sm font-semibold text-gray-700">South / Finaghy</div></a>
+            <a href="locations/bt11.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT11</div><div class="text-sm font-semibold text-gray-700">West / Andersonstown</div></a>
+            <a href="locations/bt12.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT12</div><div class="text-sm font-semibold text-gray-700">West / Falls Road</div></a>
+            <a href="locations/bt13.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT13</div><div class="text-sm font-semibold text-gray-700">West / Shankill</div></a>
+            <a href="locations/bt14.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT14</div><div class="text-sm font-semibold text-gray-700">North / Crumlin Rd</div></a>
+            <a href="locations/bt15.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT15</div><div class="text-sm font-semibold text-gray-700">North / Antrim Rd</div></a>
+            <a href="locations/bt16.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT16</div><div class="text-sm font-semibold text-gray-700">East / Dundonald</div></a>
+            <a href="locations/bt17.html" class="group bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-500 hover:shadow-md transition cursor-pointer"><div class="text-2xl font-extrabold text-blue-600 mb-1">BT17</div><div class="text-sm font-semibold text-gray-700">West / Dunmurry</div></a>
+        </div>
+    </div>
+
+    <!-- Quick Search Section -->
+    <div class="bg-blue-50 border-t border-blue-100 py-16 mt-auto">
+        <div class="max-w-3xl mx-auto px-4 text-center">
+            <h3 class="text-2xl font-bold text-blue-900 mb-3">Find a Belfast Dentist Instantly</h3>
+            <p class="text-gray-600 mb-6">Enter your postcode to calculate exact distances to the nearest clinics.</p>
+            
+            <form id="quickSearchForm" class="flex flex-col sm:flex-row justify-center max-w-lg mx-auto gap-3">
+                <input type="text" id="quickPostcode" placeholder="e.g. BT1 1AA" class="w-full px-5 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase text-center sm:text-left font-semibold" required>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-md transition whitespace-nowrap">
+                    Search
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!--footer-->
+    <footer class="bg-gray-900 text-gray-300 py-16 border-t border-gray-800 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
+        
+        <div>
+            <span class="text-3xl font-extrabold text-white tracking-tight">Belfast<span class="text-blue-500">Dentist</span></span>
+            <p class="mt-4 text-sm leading-relaxed text-gray-400">
+                Connecting patients with premium dental care across Belfast. Fast, precise, and highly reliable.
+            </p>
+            <div class="mt-6 flex items-center">
+                <div class="bg-gray-800 p-2 rounded-lg mr-3">
+                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Call Us</p>
+                    <a href="tel:+442039960055" class="hover:text-blue-400 text-white font-bold transition text-lg">+44 20 39960055</a>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h4 class="text-white font-bold mb-5 uppercase tracking-wider text-sm flex items-center">
+                <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                Report Data Issue
+            </h4>
+            <p class="text-sm mb-4 text-gray-400 leading-relaxed">Found incorrect details about a clinic? Help us keep our network accurate and up-to-date.</p>
+            <a href="mailto:Report@belfastdentist.co.uk" class="inline-flex items-center text-blue-400 hover:text-blue-300 transition text-sm font-bold bg-gray-800 hover:bg-gray-700 px-4 py-2.5 rounded-lg border border-gray-700">
+                <span class="mr-2">✉️</span> Report@belfastdentist.co.uk
+            </a>
+        </div>
+
+        <div>
+            <h4 class="text-white font-bold mb-5 uppercase tracking-wider text-sm flex items-center">
+                <svg class="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                Add a Clinic (100% Free)
+            </h4>
+            <p class="text-sm mb-4 text-gray-400 leading-relaxed">Are you a Belfast clinic not listed here? Or a patient who wants to recommend one? We will add the clinic for free.</p>
+            <div class="flex flex-col space-y-3">
+                <a href="mailto:Contact@belfastdentist.co.uk" class="inline-flex items-center text-blue-400 hover:text-blue-300 transition text-sm font-bold">
+                    <span class="mr-2">✉️</span> Contact@belfastdentist.co.uk
+                </a>
+                <a href="mailto:admin@belfastdentist.co.uk" class="inline-flex items-center text-blue-400 hover:text-blue-300 transition text-sm font-bold">
+                    <span class="mr-2">✉️</span> admin@belfastdentist.co.uk
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-12 border-t border-gray-800">
+        <h4 class="text-white font-bold mb-6 uppercase tracking-wider text-sm">Browse Dentists by Area</h4>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-3">
+            <a href="locations/bt1.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT1 - City Centre</a>
+            <a href="locations/bt2.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT2 - City / Ormeau</a>
+            <a href="locations/bt3.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT3 - East / Sydenham</a>
+            <a href="locations/bt4.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT4 - East / Belmont</a>
+            <a href="locations/bt5.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT5 - Castlereagh</a>
+            <a href="locations/bt6.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT6 - East / Woodstock</a>
+            <a href="locations/bt7.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT7 - South / Ormeau</a>
+            <a href="locations/bt8.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT8 - South / Carryduff</a>
+            <a href="locations/bt9.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT9 - South / Malone</a>
+            <a href="locations/bt10.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT10 - Finaghy</a>
+            <a href="locations/bt11.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT11 - Andersonstown</a>
+            <a href="locations/bt12.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT12 - Falls Road</a>
+            <a href="locations/bt13.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT13 - Shankill</a>
+            <a href="locations/bt14.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT14 - Crumlin Road</a>
+            <a href="locations/bt15.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT15 - Antrim Road</a>
+            <a href="locations/bt16.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT16 - Dundonald</a>
+            <a href="locations/bt17.html" class="text-gray-400 hover:text-blue-400 transition text-sm">BT17 - Dunmurry</a>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-gray-800 text-sm text-center flex flex-col md:flex-row justify-between items-center text-gray-500">
+        <p>&copy; 2026 Belfast Dentist Network. All rights reserved.</p>
+        <div class="mt-4 md:mt-0 space-x-4">
+            <a href="#" class="hover:text-gray-300 transition">Privacy Policy</a>
+            <a href="#" class="hover:text-gray-300 transition">Terms of Service</a>
+        </div>
+    </div>
+</footer>
+
+    <!-- Modal for Quick Search Results -->
+    <div id="quickSearchModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 z-50 flex justify-center items-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] flex flex-col overflow-hidden relative">
+            <div class="bg-blue-600 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-xl">Nearest Clinics</h3>
+                <button type="button" onclick="document.getElementById('quickSearchModal').classList.add('hidden')" class="text-white hover:text-blue-200 text-3xl leading-none focus:outline-none">&times;</button>
+            </div>
+            <div id="quickLoading" class="hidden py-12 text-center text-gray-500">
+                <svg class="animate-spin h-10 w-10 mx-auto mb-3 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="font-medium">Calculating distances...</p>
+            </div>
+            <div id="quickResultsList" class="p-5 overflow-y-auto flex-grow bg-gray-50 space-y-4 custom-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- Map & Search Script -->
+    <script>
+        // 1. Tooltip Logic for the Interactive SVG Map
+        const tooltip = document.getElementById('mapTooltip');
+        const mapGroups = document.querySelectorAll('.map-group');
+
+        mapGroups.forEach(group => {
+            group.addEventListener('mousemove', (e) => {
+                tooltip.style.opacity = '1';
+                tooltip.textContent = group.getAttribute('data-area');
+                // Adjust position to follow mouse
+                tooltip.style.left = e.pageX + 'px';
+                tooltip.style.top = (e.pageY - 15) + 'px';
+            });
+            
+            group.addEventListener('mouseleave', () => {
+                tooltip.style.opacity = '0';
+            });
+        });
+
+        // 2. Quick Search Logic
+        document.getElementById('quickSearchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const postcode = document.getElementById('quickPostcode').value.trim();
+            const modal = document.getElementById('quickSearchModal');
+            const resultsContainer = document.getElementById('quickResultsList');
+            const loading = document.getElementById('quickLoading');
+            
+            modal.classList.remove('hidden');
+            resultsContainer.innerHTML = ''; 
+            loading.classList.remove('hidden');
+
+            try {
+                const SEARCH_API_URL = 'https://belfastdentist-grosearcher-933163611360.europe-west1.run.app'; 
+                const response = await fetch(SEARCH_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ postcode: postcode })
+                });
+
+                const data = await response.json(); 
+                if (!response.ok || !data.success) throw new Error(data.error || "Search failed");
+                
+                const clinics = data.results;
+                loading.classList.add('hidden');
+
+                if (!clinics || clinics.length === 0) {
+                    resultsContainer.innerHTML = `<div class="text-center text-gray-500 py-8"><p class="text-lg mb-2">😕 No clinics found nearby.</p></div>`;
+                    return;
+                }
+
+                clinics.forEach(clinic => {
+                    const clinicCard = `
+                        <div class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm flex justify-between items-center gap-4">
+                            <div>
+                                <h4 class="font-bold text-gray-900 text-base mb-1">${clinic.name}</h4>
+                                <p class="text-blue-600 font-semibold text-xs">
+                                    📍 ${clinic.distance_km}Km (${clinic.distance_mi} mi) away
+                                </p>
+                            </div>
+                            <a href="tel:${clinic.phone}" class="bg-green-50 border border-green-200 px-3 py-1.5 rounded-lg text-center whitespace-nowrap hover:bg-green-100 transition">
+                                <span class="block text-[10px] text-green-700 font-bold">CALL</span>
+                            </a>
+                        </div>
+                    `;
+                    resultsContainer.insertAdjacentHTML('beforeend', clinicCard);
+                });
+            } catch (error) {
+                loading.classList.add('hidden');
+                resultsContainer.innerHTML = `<div class="text-center text-red-500 py-8 font-medium">Connection error. Please try again.</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
