@@ -427,6 +427,12 @@
                 resultsContainer.innerHTML = `<div class="text-center text-red-500 py-8 font-medium">Connection error. Please try again.</div>`;
             }
         });
+
+         // دالة لفتح وإغلاق قائمة الهاتف
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
     </script>
 </body>
 </html>
