@@ -4,8 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
+  <meta property="og:title" content="Top Dentist in BT4 | Belfast Dental Clinics">
+  <meta property="og:description" content="Find the best private and NHS dental clinics in BT4. Book your appointment today.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://belfastdentist.co.uk/locations/bt4">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://belfastdentist.co.uk/locations/bt4" />
+  
   <title>Top Dentist in BT4 (Belmont / Sydenham) | Belfast Dental Clinics</title>
-  <meta name="description" content="Find the best private and NHS dental clinics in BT4 (Belmont / Sydenham). Book routine, cosmetic, and emergency dentist appointments near Belmont Road, Ballyhackamore, Holywood Road, Stormont">
+  <meta name="description" content="Find top private & NHS dental clinics in BT4. Book routine, cosmetic & emergency appointments near Belmont Rd, Ballyhackamore & Stormont.">
   <meta name="keywords" content="dentist BT4, dental clinics BT4, Belmont / Sydenham dentist, Belfast dentist, Belmont Road, Ballyhackamore, Holywood Road, Stormont">
   
   <link rel="icon" type="image/png" href="../DDR.png">
@@ -62,7 +69,6 @@
 
 <div class="pt-32 pb-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-         <!-- زر الرجوع (Back Button) -->
         <a href="../areas.html" class="inline-flex items-center text-gray-500 hover:text-blue-700 font-semibold mb-6 transition group">
             <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -150,142 +156,7 @@
     </div>
 </div>
 
-<script>
-document.getElementById('quickSearchForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const postcode = document.getElementById('quickPostcode').value.trim();
-    const modal = document.getElementById('quickSearchModal');
-    const resultsContainer = document.getElementById('quickResultsList');
-    const loading = document.getElementById('quickLoading');
-    
-    modal.classList.remove('hidden');
-    resultsContainer.innerHTML = ''; 
-    loading.classList.remove('hidden');
-
-    try {
-        const SEARCH_API_URL = 'https://belfastdentist-grosearcher-933163611360.europe-west1.run.app'; 
-        const response = await fetch(SEARCH_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ postcode: postcode })
-        });
-
-        const data = await response.json(); 
-        if (!response.ok || !data.success) throw new Error(data.error || "Search failed");
-        const clinics = data.results;
-
-        loading.classList.add('hidden');
-
-        if (!clinics || clinics.length === 0) {
-            resultsContainer.innerHTML = `
-                <div class="text-center text-gray-500 py-8">
-                    <p class="text-lg mb-2">😕 No clinics found nearby.</p>
-                    <p class="text-sm">Please check your postcode and try again.</p>
-                </div>`;
-            return;
-        }
-
-        clinics.forEach(clinic => {
-            const clinicCard = `
-                <div class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div class="flex-grow">
-                        <h4 class="font-bold text-gray-900 text-lg leading-tight mb-1">${clinic.name}</h4>
-                        <p class="text-blue-600 font-semibold text-sm">
-                            <span class="inline-block mr-1">📍</span> ${clinic.distance_km}Km (${clinic.distance_mi} mi) away
-                        </p>
-                    </div>
-                    <div class="w-full sm:w-auto shrink-0">
-                        <a href="tel:${clinic.phone}" class="block bg-green-50 hover:bg-green-100 border border-green-200 px-4 py-2 rounded-lg text-center transition group">
-                            <span class="block text-[11px] text-green-700 uppercase tracking-wider font-bold mb-0.5">Call Clinic</span>
-                            <span class="font-extrabold text-green-800 text-lg group-hover:text-green-900">${clinic.phone}</span>
-                        </a>
-                    </div>
-                </div>
-            `;
-            resultsContainer.insertAdjacentHTML('beforeend', clinicCard);
-        });
-
-    } catch (error) {
-        console.error("Error fetching quick search:", error);
-        loading.classList.add('hidden');
-        resultsContainer.innerHTML = `<div class="text-center text-red-500 py-8 font-medium">Connection error. Please try again later.</div>`;
-    }
-});
-</script>
-
-<script>
-    const CURRENT_PAGE_POSTCODE = "BT4"; 
-
-    document.addEventListener("DOMContentLoaded", async function() {
-        const container = document.getElementById('areaClinicsContainer');
-        const loading = document.getElementById('areaLoading');
-        const countDisplay = document.getElementById('clinicCount');
-
-        try {
-            const response = await fetch('../clinics.json');
-            if (!response.ok) throw new Error("Failed to load local clinics data");
-            
-            const allClinics = await response.json();
-            
-            const areaClinics = allClinics.filter(clinic => {
-                if (!clinic.postcode) return false;
-                const pc = clinic.postcode.toUpperCase().trim();
-                return pc === CURRENT_PAGE_POSTCODE || pc.startsWith(CURRENT_PAGE_POSTCODE + ' ');
-            });
-            
-            loading.classList.add('hidden');
-            countDisplay.innerText = `${areaClinics.length} Clinics Found`;
-
-            if(areaClinics.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-2xl border text-gray-500 shadow-sm"><span class="text-4xl mb-3 block">🦷</span>No clinics are currently listed in ${CURRENT_PAGE_POSTCODE}.<br><a href="../areas.html" class="text-blue-600 font-bold hover:underline mt-2 inline-block">Explore nearby areas</a></div>`;
-                return;
-            }
-
-            areaClinics.forEach((clinic, index) => {
-                let servicesHTML = '';
-                if (clinic["Products&Services"] && clinic["Products&Services"].length > 0) {
-                    const topServices = clinic["Products&Services"].slice(0, 5);
-                    servicesHTML = topServices.map(s => `<span class="bg-gray-100 text-gray-600 text-[11px] px-2 py-1 rounded border border-gray-200 m-0.5 inline-block whitespace-nowrap">${s}</span>`).join('');
-                } else {
-                    servicesHTML = `<span class="bg-blue-50 text-blue-600 text-[11px] px-2 py-1 rounded border border-blue-100 m-0.5 inline-block">General Dentistry</span>`;
-                }
-
-                const badgeType = clinic.type === 'corporate' 
-                    ? `<span class="absolute top-4 right-4 bg-purple-50 text-purple-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider border border-purple-100">Corporate</span>` 
-                    : `<span class="absolute top-4 right-4 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider border border-emerald-100">Independent</span>`;
-
-                const phoneBtn = clinic.phone || clinic.Num ? `<a href="tel:${clinic.phone || clinic.Num}" class="w-full text-center bg-green-50 hover:bg-green-100 border border-green-200 text-green-800 font-bold py-2.5 rounded-xl transition text-sm uppercase tracking-wider mt-4 block">📞 ${clinic.phone || clinic.Num}</a>` : '';
-                const webBtn = clinic.web ? `<a href="${clinic.web}" target="_blank" class="w-full text-center bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition text-sm uppercase tracking-wider mt-2 block">🌐 Website</a>` : '';
-
-                const clinicCard = `
-                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition flex flex-col h-full relative">
-                        ${badgeType}
-                        <h3 class="font-bold text-xl text-gray-900 mb-2 pr-20">${index + 1}. ${clinic.name}</h3>
-                        <p class="text-sm text-gray-500 mb-4 font-medium leading-relaxed">📍 ${clinic.address}</p>
-                        
-                        <div class="mb-6 flex-grow">
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Treatments:</p>
-                            <div class="flex flex-wrap">${servicesHTML}</div>
-                        </div>
-                        
-                        <div class="mt-auto">
-                            ${phoneBtn}
-                            ${webBtn}
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', clinicCard);
-            });
-
-        } catch (error) {
-            loading.classList.add('hidden');
-            container.innerHTML = `<div class="col-span-full text-center py-12 bg-red-50 text-red-600 rounded-2xl border border-red-100 font-bold">Error loading clinics.</div>`;
-        }
-    });
-</script>
-
-<!--footer-->
-    <footer class="bg-gray-900 text-gray-300 py-16 border-t border-gray-800 mt-auto">
+<footer class="bg-gray-900 text-gray-300 py-16 border-t border-gray-800 mt-auto">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
         
         <div>
@@ -363,5 +234,141 @@ document.getElementById('quickSearchForm').addEventListener('submit', async func
         </div>
     </div>
 </footer>
+
+<script>
+// سكريبت البحث السريع
+document.getElementById('quickSearchForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const postcode = document.getElementById('quickPostcode').value.trim();
+    const modal = document.getElementById('quickSearchModal');
+    const resultsContainer = document.getElementById('quickResultsList');
+    const loading = document.getElementById('quickLoading');
+    
+    modal.classList.remove('hidden');
+    resultsContainer.innerHTML = ''; 
+    loading.classList.remove('hidden');
+
+    try {
+        const SEARCH_API_URL = 'https://belfastdentist-grosearcher-933163611360.europe-west1.run.app'; 
+        const response = await fetch(SEARCH_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postcode: postcode })
+        });
+
+        const data = await response.json(); 
+        if (!response.ok || !data.success) throw new Error(data.error || "Search failed");
+        const clinics = data.results;
+
+        loading.classList.add('hidden');
+
+        if (!clinics || clinics.length === 0) {
+            resultsContainer.innerHTML = `
+                <div class="text-center text-gray-500 py-8">
+                    <p class="text-lg mb-2">😕 No clinics found nearby.</p>
+                    <p class="text-sm">Please check your postcode and try again.</p>
+                </div>`;
+            return;
+        }
+
+        clinics.forEach(clinic => {
+            const clinicCard = `
+                <div class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div class="flex-grow">
+                        <h4 class="font-bold text-gray-900 text-lg leading-tight mb-1">${clinic.name}</h4>
+                        <p class="text-blue-600 font-semibold text-sm">
+                            <span class="inline-block mr-1">📍</span> ${clinic.distance_km}Km (${clinic.distance_mi} mi) away
+                        </p>
+                    </div>
+                    <div class="w-full sm:w-auto shrink-0">
+                        <a href="tel:${clinic.phone}" class="block bg-green-50 hover:bg-green-100 border border-green-200 px-4 py-2 rounded-lg text-center transition group">
+                            <span class="block text-[11px] text-green-700 uppercase tracking-wider font-bold mb-0.5">Call Clinic</span>
+                            <span class="font-extrabold text-green-800 text-lg group-hover:text-green-900">${clinic.phone}</span>
+                        </a>
+                    </div>
+                </div>
+            `;
+            resultsContainer.insertAdjacentHTML('beforeend', clinicCard);
+        });
+
+    } catch (error) {
+        console.error("Error fetching quick search:", error);
+        loading.classList.add('hidden');
+        resultsContainer.innerHTML = `<div class="text-center text-red-500 py-8 font-medium">Connection error. Please try again later.</div>`;
+    }
+});
+</script>
+
+<script>
+    // سكريبت جلب العيادات الخاصة بالمنطقة
+    const CURRENT_PAGE_POSTCODE = "BT4"; 
+
+    document.addEventListener("DOMContentLoaded", async function() {
+        const container = document.getElementById('areaClinicsContainer');
+        const loading = document.getElementById('areaLoading');
+        const countDisplay = document.getElementById('clinicCount');
+
+        try {
+            const response = await fetch('../clinics.json');
+            if (!response.ok) throw new Error("Failed to load local clinics data");
+            
+            const allClinics = await response.json();
+            
+            const areaClinics = allClinics.filter(clinic => {
+                if (!clinic.postcode) return false;
+                const pc = clinic.postcode.toUpperCase().trim();
+                return pc === CURRENT_PAGE_POSTCODE || pc.startsWith(CURRENT_PAGE_POSTCODE + ' ');
+            });
+            
+            loading.classList.add('hidden');
+            countDisplay.innerText = `${areaClinics.length} Clinics Found`;
+
+            if(areaClinics.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-16 bg-white rounded-2xl border text-gray-500 shadow-sm"><span class="text-4xl mb-3 block">🦷</span>No clinics are currently listed in ${CURRENT_PAGE_POSTCODE}.<br><a href="../areas.html" class="text-blue-600 font-bold hover:underline mt-2 inline-block">Explore nearby areas</a></div>`;
+                return;
+            }
+
+            areaClinics.forEach((clinic, index) => {
+                let servicesHTML = '';
+                if (clinic["Products&Services"] && clinic["Products&Services"].length > 0) {
+                    const topServices = clinic["Products&Services"].slice(0, 5);
+                    servicesHTML = topServices.map(s => `<span class="bg-gray-100 text-gray-600 text-[11px] px-2 py-1 rounded border border-gray-200 m-0.5 inline-block whitespace-nowrap">${s}</span>`).join('');
+                } else {
+                    servicesHTML = `<span class="bg-blue-50 text-blue-600 text-[11px] px-2 py-1 rounded border border-blue-100 m-0.5 inline-block">General Dentistry</span>`;
+                }
+
+                const badgeType = clinic.type === 'corporate' 
+                    ? `<span class="absolute top-4 right-4 bg-purple-50 text-purple-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider border border-purple-100">Corporate</span>` 
+                    : `<span class="absolute top-4 right-4 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider border border-emerald-100">Independent</span>`;
+
+                const phoneBtn = clinic.phone || clinic.Num ? `<a href="tel:${clinic.phone || clinic.Num}" class="w-full text-center bg-green-50 hover:bg-green-100 border border-green-200 text-green-800 font-bold py-2.5 rounded-xl transition text-sm uppercase tracking-wider mt-4 block">📞 ${clinic.phone || clinic.Num}</a>` : '';
+                const webBtn = clinic.web ? `<a href="${clinic.web}" target="_blank" class="w-full text-center bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition text-sm uppercase tracking-wider mt-2 block">🌐 Website</a>` : '';
+
+                const clinicCard = `
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition flex flex-col h-full relative">
+                        ${badgeType}
+                        <h3 class="font-bold text-xl text-gray-900 mb-2 pr-20">${index + 1}. ${clinic.name}</h3>
+                        <p class="text-sm text-gray-500 mb-4 font-medium leading-relaxed">📍 ${clinic.address}</p>
+                        
+                        <div class="mb-6 flex-grow">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Treatments:</p>
+                            <div class="flex flex-wrap">${servicesHTML}</div>
+                        </div>
+                        
+                        <div class="mt-auto">
+                            ${phoneBtn}
+                            ${webBtn}
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', clinicCard);
+            });
+
+        } catch (error) {
+            loading.classList.add('hidden');
+            container.innerHTML = `<div class="col-span-full text-center py-12 bg-red-50 text-red-600 rounded-2xl border border-red-100 font-bold">Error loading clinics.</div>`;
+        }
+    });
+</script>
 </body>
 </html>
