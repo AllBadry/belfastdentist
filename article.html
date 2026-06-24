@@ -182,60 +182,66 @@
     </div>
 </footer>
 
-    <!-- الجافاسكربت المسؤولة عن جلب وعرض المقال -->
+
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const loader = document.getElementById('articleLoader');
-            const articleContent = document.getElementById('articleContent');
-            const errorMessage = document.getElementById('errorMessage');
+    document.addEventListener('DOMContentLoaded', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const articleId = parseInt(urlParams.get('id'));
 
-            // 1. استخراج رقم المقال (ID) من رابط الصفحة
-            const urlParams = new URLSearchParams(window.location.search);
-            const articleId = parseInt(urlParams.get('id'));
+        try {
+            const response = await fetch('articles.json');
+            const articles = await response.json();
+            const article = articles.find(a => a.id === articleId);
 
-            // إذا لم يكن هناك رقم في الرابط، أظهر رسالة خطأ
-            if (!articleId) {
-                loader.classList.add('hidden');
-                errorMessage.classList.remove('hidden');
-                return;
-            }
+            if (article) {
+                // 1. تحديث العنوان
+                document.title = article.metaTitle;
 
-            try {
-                // 2. سحب ملف المقالات
-                const response = await fetch('articles.json'); 
-                if (!response.ok) throw new Error("Could not load articles");
-                const articles = await response.json();
+                // 2. تحديث الـ Meta Tags الخاصة بالـ SEO
+                updateMeta('name', 'description', article.metaDescription);
+                updateMeta('name', 'keywords', article.keywords);
                 
-                // 3. البحث عن المقال الذي يطابق الرقم
-                const article = articles.find(a => a.id === articleId);
+                // 3. تحديث Open Graph (للمشاركة)
+                updateMeta('property', 'og:title', article.title);
+                updateMeta('property', 'og:description', article.metaDescription);
+                updateMeta('property', 'og:image', article.image);
+                updateMeta('property', 'og:url', window.location.href);
 
-                if (article) {
-                    // 4. تعبئة البيانات في الشاشة
-                    // خدعة SEO: تغيير عنوان الـ Tab في المتصفح لاسم المقال
-                    document.title = article.title + " | Belfast Dentist Network"; 
-                    
-                    document.getElementById('renderImage').src = article.image;
-                    document.getElementById('renderImage').alt = article.title;
-                    document.getElementById('renderDate').innerText = article.date;
-                    document.getElementById('renderAuthor').innerText = article.author;
-                    document.getElementById('renderTitle').innerText = article.title;
-                    
-                    // حقن كود الـ HTML الخاص بمحتوى المقال
-                    document.getElementById('renderBody').innerHTML = article.content;
-
-                    // إظهار المقال
-                    loader.classList.add('hidden');
-                    articleContent.classList.remove('hidden');
-                } else {
-                    throw new Error("Article not found in JSON");
+                // 4. تحديث الـ Canonical
+                let canonical = document.querySelector('link[rel="canonical"]');
+                if (!canonical) {
+                    canonical = document.createElement('link');
+                    canonical.setAttribute('rel', 'canonical');
+                    document.head.appendChild(canonical);
                 }
+                canonical.setAttribute('href', window.location.href);
 
-            } catch (error) {
-                console.error(error);
-                loader.classList.add('hidden');
-                errorMessage.classList.remove('hidden');
+                // عرض المحتوى في الصفحة
+                document.getElementById('renderTitle').innerText = article.title;
+                document.getElementById('renderDate').innerText = article.date;
+                document.getElementById('renderImage').src = article.image;
+                document.getElementById('renderBody').innerHTML = article.content;
+                
+                document.getElementById('articleLoader').classList.add('hidden');
+                document.getElementById('articleContent').classList.remove('hidden');
             }
-        });
-    </script>
+        } catch (err) {
+            console.error("Error loading article:", err);
+        }
+    });
+
+    // دالة مساعدة لتحديث أو إنشاء الـ Meta Tags
+    function updateMeta(type, name, content) {
+        let selector = type === 'name' ? `meta[name="${name}"]` : `meta[property="${name}"]`;
+        let el = document.querySelector(selector);
+        
+        if (!el) {
+            el = document.createElement('meta');
+            el.setAttribute(type, name);
+            document.head.appendChild(el);
+        }
+        el.setAttribute('content', content);
+    }
+</script>
 </body>
 </html>
